@@ -2,6 +2,11 @@ import tkinter as tk
 from tkinter import messagebox
 import copy
 
+# Constants
+FONT_SIZE = 40
+SQUARE_WIDTH = 2
+SQUARE_HEIGHT = 1
+
 class MainUI():
     def __init__(self):
         self.root = tk.Tk()
@@ -411,9 +416,9 @@ class Board:
         for row in range(rows):
             for col in range(cols):
                 if (row + col) % 2 == 0:
-                    self.board_buttons[row][col] = tk.Button(self.root, text = self.board[row][col], command = lambda r = row, c = col : self.on_click(r, c), bg = 'white', width = 2, height = 1, font = ("Calibri", 40))
+                    self.board_buttons[row][col] = tk.Button(self.root, text = self.board[row][col], command = lambda r = row, c = col : self.on_click(r, c), bg = 'white', width = SQUARE_WIDTH, height = SQUARE_HEIGHT, font = ("Calibri", FONT_SIZE))
                 else:
-                    self.board_buttons[row][col] = tk.Button(self.root, text = self.board[row][col], command = lambda r = row, c = col : self.on_click(r, c), bg = 'gray', width = 2, height = 1, font = ("Calibri", 40))
+                    self.board_buttons[row][col] = tk.Button(self.root, text = self.board[row][col], command = lambda r = row, c = col : self.on_click(r, c), bg = 'gray', width = SQUARE_WIDTH, height = SQUARE_HEIGHT, font = ("Calibri", FONT_SIZE))
                 self.board_buttons[row][col].grid(row = row, column = col)
 
         self.label1 = tk.Label(self.root, text="White's \n turn")
