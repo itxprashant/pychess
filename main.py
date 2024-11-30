@@ -83,6 +83,7 @@ class Board:
             else:
                 self.selected_color = "black"
             # (row, column, color, piece)
+            self.hide_available_moves()
             self.selected = (row, col, self.selected_color, self.board[row][col])
             self.available = self.filter_available_moves(self.board, row, col, self.selected[2])
             self.mark_available_moves(row, col, self.selected[2])
