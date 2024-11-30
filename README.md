@@ -10,4 +10,4 @@ This is a Python Chess clone made by me.
 - [ ] En Passant
 - [x] Show Checks
 - [x] Remove moves which result in check
-- [ ] Game Over Status
+- [x] Game Over Status
