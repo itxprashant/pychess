@@ -7,6 +7,11 @@ FONT_SIZE = 40
 SQUARE_WIDTH = 2
 SQUARE_HEIGHT = 1
 
+# pieces = [king(0), queen(1), rook(2), bishop(3), knight(4), pawn(5)]
+white_pieces = ["♔", "♕", "♖", "♗", "♘", "♙"]
+black_pieces = ["♚", "♛", "♜", "♝", "♞", "♟"]
+
+
 class MainUI():
     def __init__(self):
         self.root = tk.Tk()
@@ -27,10 +32,10 @@ class Board:
         if self.selected and (row, col) != (self.selected[0], self.selected[1]) and self.available[row][col]: # for test
 
             # check for promotion
-            if self.board[self.selected[0]][self.selected[1]] == self.black_pieces[5] and row == 7:
+            if self.board[self.selected[0]][self.selected[1]] == black_pieces[5] and row == 7:
                 self.promote_pawn(row, col, "black")
             
-            elif self.board[self.selected[0]][self.selected[1]] == self.white_pieces[5] and row == 0:
+            elif self.board[self.selected[0]][self.selected[1]] == white_pieces[5] and row == 0:
                 self.promote_pawn(row, col, "white")
             
             
@@ -77,8 +82,8 @@ class Board:
             self.restore_square_color(row, col)
 
         # select piece/square
-        elif self.board[row][col] != " " and ((self.current_turn == "black" and self.board[row][col] in self.black_pieces) or (self.current_turn == "white" and self.board[row][col] in self.white_pieces)):
-            if self.board[row][col] in self.white_pieces:
+        elif self.board[row][col] != " " and ((self.current_turn == "black" and self.board[row][col] in black_pieces) or (self.current_turn == "white" and self.board[row][col] in white_pieces)):
+            if self.board[row][col] in white_pieces:
                 self.selected_color = "white"
             else:
                 self.selected_color = "black"
@@ -96,46 +101,46 @@ class Board:
         available = [[0 for _ in range(8)] for _ in range(8)]
 
         # for white pawn
-        if board[r][c] == self.white_pieces[5] and r == 6 and board[r-1][c] == " " and board[r-2][c] == " ":
+        if board[r][c] == white_pieces[5] and r == 6 and board[r-1][c] == " " and board[r-2][c] == " ":
             available[r-1][c] = 1
             available[r-2][c] = 1
 
-        elif board[r][c] == self.white_pieces[5] and r != 0 and board[r-1][c] == " ":
+        elif board[r][c] == white_pieces[5] and r != 0 and board[r-1][c] == " ":
             available[r-1][c] = 1
         
         # capturable
-        if board[r][c] == self.white_pieces[5] and r >= 1 and col <= 6 and board[r-1][c+1] != " " and board[r-1][c+1] in self.black_pieces:
+        if board[r][c] == white_pieces[5] and r >= 1 and col <= 6 and board[r-1][c+1] != " " and board[r-1][c+1] in black_pieces:
             available[r-1][c+1] = 1
 
-        if board[r][c] == self.white_pieces[5] and r >= 1 and col >= 1 and board[r-1][c-1] != " " and board[r-1][c-1] in self.black_pieces:
+        if board[r][c] == white_pieces[5] and r >= 1 and col >= 1 and board[r-1][c-1] != " " and board[r-1][c-1] in black_pieces:
             available[r-1][c-1] = 1
         
         
         # for black pawn
-        if board[r][c] == self.black_pieces[5]  and r == 1 and board[r+1][c] == " " and board[r+2][c] == " ":
+        if board[r][c] == black_pieces[5]  and r == 1 and board[r+1][c] == " " and board[r+2][c] == " ":
             available[r+1][c] = 1
             available[r+2][c] = 1
 
-        elif board[r][c] == self.black_pieces[5] and r != 7 and board[r+1][c] == " ":
+        elif board[r][c] == black_pieces[5] and r != 7 and board[r+1][c] == " ":
             available[r+1][c] = 1
         
         # capturable
-        if board[r][c] == self.black_pieces[5] and r <= 6 and col <= 6 and board[r+1][c+1] != " " and board[r+1][c+1] in self.white_pieces:
+        if board[r][c] == black_pieces[5] and r <= 6 and col <= 6 and board[r+1][c+1] != " " and board[r+1][c+1] in white_pieces:
             available[r+1][c+1] = 1
 
-        if board[r][c] == self.black_pieces[5] and r <= 6 and col >= 1 and board[r+1][c-1] != " " and board[r+1][c-1] in self.white_pieces:
+        if board[r][c] == black_pieces[5] and r <= 6 and col >= 1 and board[r+1][c-1] != " " and board[r+1][c-1] in white_pieces:
             available[r+1][c-1] = 1
         
         
         # for rooks and queens (mark straight)
-        if board[r][c] in [self.white_pieces[2], self.black_pieces[2], self.white_pieces[1], self.black_pieces[1]]:
+        if board[r][c] in [white_pieces[2], black_pieces[2], white_pieces[1], black_pieces[1]]:
             ra = r + 1
             rc = c
             while ra <= 7 and ra >= 0:
                 if board[ra][rc] == " ":
                     available[ra][rc] = 1
                     ra += 1
-                elif (board[ra][rc] in self.white_pieces and selected_color == "white") or (board[ra][rc] in self.black_pieces and selected_color == "black"):
+                elif (board[ra][rc] in white_pieces and selected_color == "white") or (board[ra][rc] in black_pieces and selected_color == "black"):
                     break
                 else:
                     available[ra][rc] = 1
@@ -146,7 +151,7 @@ class Board:
                 if board[ra][rc] == " ":
                     available[ra][rc] = 1
                     ra -= 1
-                elif (board[ra][rc] in self.white_pieces and selected_color == "white") or (board[ra][rc] in self.black_pieces and selected_color == "black"):
+                elif (board[ra][rc] in white_pieces and selected_color == "white") or (board[ra][rc] in black_pieces and selected_color == "black"):
                     break
                 else:
                     available[ra][rc] = 1
@@ -157,7 +162,7 @@ class Board:
                 if board[ra][rc] == " ":
                     available[ra][rc] = 1
                     rc += 1
-                elif (board[ra][rc] in self.white_pieces and selected_color == "white") or (board[ra][rc] in self.black_pieces and selected_color == "black"):
+                elif (board[ra][rc] in white_pieces and selected_color == "white") or (board[ra][rc] in black_pieces and selected_color == "black"):
                     break
                 else:
                     available[ra][rc] = 1
@@ -168,7 +173,7 @@ class Board:
                 if board[ra][rc] == " ":
                     available[ra][rc] = 1
                     rc -= 1
-                elif (board[ra][rc] in self.white_pieces and selected_color == "white") or (board[ra][rc] in self.black_pieces and selected_color == "black"):
+                elif (board[ra][rc] in white_pieces and selected_color == "white") or (board[ra][rc] in black_pieces and selected_color == "black"):
                     break
                 else:
                     available[ra][rc] = 1
@@ -176,7 +181,7 @@ class Board:
 
 
         # for bishops and queens (mark diagonals)
-        if board[r][c] in [self.white_pieces[3], self.black_pieces[3], self.white_pieces[1], self.black_pieces[1]]:
+        if board[r][c] in [white_pieces[3], black_pieces[3], white_pieces[1], black_pieces[1]]:
             ra = r + 1
             rc = c + 1
             while ra <= 7 and ra >= 0 and rc <= 7 and rc >= 0:
@@ -184,7 +189,7 @@ class Board:
                     available[ra][rc] = 1
                     ra += 1
                     rc += 1
-                elif (board[ra][rc] in self.white_pieces and selected_color == "white") or (board[ra][rc] in self.black_pieces and selected_color == "black"):
+                elif (board[ra][rc] in white_pieces and selected_color == "white") or (board[ra][rc] in black_pieces and selected_color == "black"):
                     break
                 else:
                     available[ra][rc] = 1
@@ -196,7 +201,7 @@ class Board:
                     available[ra][rc] = 1
                     ra -= 1
                     rc += 1
-                elif (board[ra][rc] in self.white_pieces and selected_color == "white") or (board[ra][rc] in self.black_pieces and selected_color == "black"):
+                elif (board[ra][rc] in white_pieces and selected_color == "white") or (board[ra][rc] in black_pieces and selected_color == "black"):
                     break
                 else:
                     available[ra][rc] = 1
@@ -208,7 +213,7 @@ class Board:
                     available[ra][rc] = 1
                     ra += 1
                     rc -= 1
-                elif (board[ra][rc] in self.white_pieces and selected_color == "white") or (board[ra][rc] in self.black_pieces and selected_color == "black"):
+                elif (board[ra][rc] in white_pieces and selected_color == "white") or (board[ra][rc] in black_pieces and selected_color == "black"):
                     break
                 else:
                     available[ra][rc] = 1
@@ -220,7 +225,7 @@ class Board:
                     available[ra][rc] = 1
                     ra -= 1
                     rc -= 1
-                elif (board[ra][rc] in self.white_pieces and selected_color == "white") or (board[ra][rc] in self.black_pieces and selected_color == "black"):
+                elif (board[ra][rc] in white_pieces and selected_color == "white") or (board[ra][rc] in black_pieces and selected_color == "black"):
                     break
                 else:
                     available[ra][rc] = 1
@@ -228,23 +233,23 @@ class Board:
 
 
         # for kings
-        if board[r][c] in [self.black_pieces[0], self.white_pieces[0]]:
+        if board[r][c] in [black_pieces[0], white_pieces[0]]:
             mark_moves = [(r+1, c+1), (r-1, c-1), (r+1, c-1), (r-1, c+1), (r+1, c), (r-1, c), (r, c+1), (r, c-1)]
             for tup in mark_moves:
                 if tup[0] >= 0 and tup[0] <= 7 and tup[1] >= 0 and tup[1] <= 7:
                     if board[tup[0]][tup[1]] == " ":
                         available[tup[0]][tup[1]] = 1
-                    elif (board[tup[0]][tup[1]] in self.black_pieces and selected_color == "white") or (board[tup[0]][tup[1]] in self.white_pieces and selected_color == "black"):
+                    elif (board[tup[0]][tup[1]] in black_pieces and selected_color == "white") or (board[tup[0]][tup[1]] in white_pieces and selected_color == "black"):
                         available[tup[0]][tup[1]] = 1
 
         # for knights
-        if board[r][c] in [self.black_pieces[4], self.white_pieces[4]]:
+        if board[r][c] in [black_pieces[4], white_pieces[4]]:
             mark_moves =  [(r+2, c+1), (r+2, c-1), (r-2, c+1), (r-2, c-1), (r+1, c+2), (r+1, c-2), (r-1, c+2), (r-1, c-2)]
             for tup in mark_moves:
                 if tup[0] >= 0 and tup[0] <= 7 and tup[1] >= 0 and tup[1] <= 7:
                     if board[tup[0]][tup[1]] == " ":
                         available[tup[0]][tup[1]] = 1
-                    elif (board[tup[0]][tup[1]] in self.black_pieces and selected_color == "white") or (board[tup[0]][tup[1]] in self.white_pieces and selected_color == "black"):
+                    elif (board[tup[0]][tup[1]] in black_pieces and selected_color == "white") or (board[tup[0]][tup[1]] in white_pieces and selected_color == "black"):
                         available[tup[0]][tup[1]] = 1
         
         return available
@@ -340,8 +345,8 @@ class Board:
 
     def pieces_of_color(self, color):
         if color == "black":
-            return self.black_pieces
-        return self.white_pieces
+            return black_pieces
+        return white_pieces
     
     def conjugate_color(self, color):
         if color == "black":
@@ -355,35 +360,32 @@ class Board:
 
         self.board = [[" " for _ in range(cols)] for _ in range(rows)]
 
-        # pieces = [king(0), queen(1), rook(2), bishop(3), knight(4), pawn(5)]
-        self.black_pieces = ["♚", "♛", "♜", "♝", "♞", "♟"]
-        self.white_pieces = ["♔", "♕", "♖", "♗", "♘", "♙"]
 
         # default_board
         for col in range(cols):
-            self.board[1][col] = self.black_pieces[5]
-            self.board[6][col] = self.white_pieces[5]
-        self.board[0][0] = self.black_pieces[2]
-        self.board[0][7] = self.black_pieces[2]
-        self.board[7][0] = self.white_pieces[2]
-        self.board[7][7] = self.white_pieces[2]
-        self.board[0][1] = self.black_pieces[4]
-        self.board[0][6] = self.black_pieces[4]
-        self.board[7][1] = self.white_pieces[4]
-        self.board[7][6] = self.white_pieces[4]
-        self.board[0][2] = self.black_pieces[3]
-        self.board[0][5] = self.black_pieces[3]
-        self.board[7][2] = self.white_pieces[3]
-        self.board[7][5] = self.white_pieces[3]
-        self.board[0][3] = self.black_pieces[1]
-        self.board[0][4] = self.black_pieces[0]
-        self.board[7][3] = self.white_pieces[1]
-        self.board[7][4] = self.white_pieces[0]
+            self.board[1][col] = black_pieces[5]
+            self.board[6][col] = white_pieces[5]
+        self.board[0][0] = black_pieces[2]
+        self.board[0][7] = black_pieces[2]
+        self.board[7][0] = white_pieces[2]
+        self.board[7][7] = white_pieces[2]
+        self.board[0][1] = black_pieces[4]
+        self.board[0][6] = black_pieces[4]
+        self.board[7][1] = white_pieces[4]
+        self.board[7][6] = white_pieces[4]
+        self.board[0][2] = black_pieces[3]
+        self.board[0][5] = black_pieces[3]
+        self.board[7][2] = white_pieces[3]
+        self.board[7][5] = white_pieces[3]
+        self.board[0][3] = black_pieces[1]
+        self.board[0][4] = black_pieces[0]
+        self.board[7][3] = white_pieces[1]
+        self.board[7][4] = white_pieces[0]
 
         # test board
-        # self.board[0][0] = self.black_pieces[0]
-        # self.board[0][1] = self.white_pieces[1]
-        # self.board[0][2] = self.white_pieces[1]
+        # self.board[0][0] = black_pieces[0]
+        # self.board[0][1] = white_pieces[1]
+        # self.board[0][2] = white_pieces[1]
         
         self.board_buttons = [[None for _ in range(cols)] for _ in range(rows)]
         self.available = [[0 for _ in range(cols)] for _ in range(rows)]
