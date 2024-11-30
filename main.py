@@ -250,6 +250,7 @@ class Board:
         return available
         
     def filter_available_moves(self, board, row, col, color):
+        """Return list of available squares by filtering out moves which result in self-check"""
         new_available = copy.deepcopy(self.check_available_moves(board, row, col, color))
 
         # hide all moves that results in self-check
@@ -265,6 +266,7 @@ class Board:
         return new_available
             
     def mark_available_moves(self, row, col, color): 
+        """Mark all available moves after filtering"""
         # mark all available
         new_available = self.filter_available_moves(self.board, row, col, self.selected[2])
         for x in range(8):
@@ -273,11 +275,13 @@ class Board:
                     self.board_buttons[x][y].config(bg = 'blue')
         
     def hide_available_moves(self):
+        """Hide available moves by restoring all square colors"""
         for x in range(8):
             for y in range(8):
                 self.restore_square_color(x,y)
     
     def restore_square_color(self, r, c):
+        """Restore square color"""
         if (r + c) % 2 == 0:
             self.board_buttons[r][c].config(bg = 'white')
         else:
@@ -295,12 +299,8 @@ class Board:
 
         for i in range(4):
             self.button1[i] = tk.Button(self.pawn_win)
-            if color == "black":
-                self.button1[i].config(text = self.black_pieces[i+1])
-                self.button1[i].config(command = lambda  r = row, c = col, i_new = i + 1 : self.on_click_promote_pawn(r, c, self.black_pieces[i_new]))
-            else:
-                self.button1[i].config(text = self.white_pieces[i+1])
-                self.button1[i].config(command = lambda  r = row, c = col, i_new = i + 1 : self.on_click_promote_pawn(r, c, self.white_pieces[i_new]))
+            self.button1[i].config(text = self.pieces_of_color(color)[i+1])
+            self.button1[i].config(command = lambda  r = row, c = col, i_new = i + 1 : self.on_click_promote_pawn(r, c, self.pieces_of_color(color)[i_new]))
             
             self.button1[i].config(width = 2, height = 1, font = ("Calibri", 40))
             self.button1[i].grid(row = 0, column = i)
@@ -334,6 +334,9 @@ class Board:
             return 1 # mate
         print("drawn")
         return 2 # draw
+    
+    def is_castling_available(self, board, color, side):
+        pass
 
     def pieces_of_color(self, color):
         if color == "black":
