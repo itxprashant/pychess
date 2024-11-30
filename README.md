@@ -9,5 +9,5 @@ This is a Python Chess clone made by me.
 - [x] Define all piece moves
 - [ ] En Passant
 - [x] Show Checks
-- [ ] Remove moves which result in check
+- [x] Remove moves which result in check
 - [ ] Game Over Status
