@@ -18,7 +18,7 @@ class Board:
     current_turn = "white"
     def on_click(self, row, col):
         # place if selected
-        if self.selected and (row, col) != (self.selected[0], self.selected[1]) and self.available[row][col]: # for test
+        if self.selected and (row, col) != (self.selected[0], self.selected[1]):# and self.available[row][col]: # for test
 
             # check for promotion
             if self.board[self.selected[0]][self.selected[1]] == self.black_pieces[5] and row == 7:
@@ -40,11 +40,14 @@ class Board:
             if self.selected[2] == "white":
                 self.label1.config(text = "Black's \n turn")
                 self.current_turn = "black"
-                self.check_for_check(self.board, "black")
+                # self.check_for_check(self.board, "black")
             else:
                 self.label1.config(text = "White's \n turn")
                 self.current_turn = "white"
-                self.check_for_check(self.board, "white")
+                # self.check_for_check(self.board, "white")
+
+            self.check_for_check(self.board, "white")
+            self.check_for_check(self.board, "black")
 
 
             self.selected = None
@@ -65,43 +68,45 @@ class Board:
                 self.selected_color = "black"
             # (row, column, color, piece)
             self.selected = (row, col, self.selected_color, self.board[row][col])
-            self.mark_available_moves(row, col)
+            self.available = self.mark_available_moves(row, col)
             self.board_buttons[self.selected[0]][self.selected[1]].config(bg = 'yellow')
     
-    def check_available_moves(self, board, row, col):
+    def check_available_moves(self, board, row, col, selected):
         r = row
         c = col
 
+        available = [[0 for _ in range(8)] for _ in range(8)]
+
         # for white pawn
         if board[r][c] == self.white_pieces[5] and r == 6 and board[r-1][c] == " " and board[r-2][c] == " ":
-            self.available[r-1][c] = 1
-            self.available[r-2][c] = 1
+            available[r-1][c] = 1
+            available[r-2][c] = 1
 
         elif board[r][c] == self.white_pieces[5] and r != 0 and board[r-1][c] == " ":
-            self.available[r-1][c] = 1
+            available[r-1][c] = 1
         
         # capturable
         if board[r][c] == self.white_pieces[5] and r >= 1 and col <= 6 and board[r-1][c+1] != " " and board[r-1][c+1] in self.black_pieces:
-            self.available[r-1][c+1] = 1
+            available[r-1][c+1] = 1
 
         if board[r][c] == self.white_pieces[5] and r >= 1 and col >= 1 and board[r-1][c-1] != " " and board[r-1][c-1] in self.black_pieces:
-            self.available[r-1][c-1] = 1
+            available[r-1][c-1] = 1
         
         
         # for black pawn
         if board[r][c] == self.black_pieces[5]  and r == 1 and board[r+1][c] == " " and board[r+2][c] == " ":
-            self.available[r+1][c] = 1
-            self.available[r+2][c] = 1
+            available[r+1][c] = 1
+            available[r+2][c] = 1
 
         elif board[r][c] == self.black_pieces[5] and r != 7 and board[r+1][c] == " ":
-            self.available[r+1][c] = 1
+            available[r+1][c] = 1
         
         # capturable
         if board[r][c] == self.black_pieces[5] and r <= 6 and col <= 6 and board[r+1][c+1] != " " and board[r+1][c+1] in self.white_pieces:
-            self.available[r+1][c+1] = 1
+            available[r+1][c+1] = 1
 
         if board[r][c] == self.black_pieces[5] and r <= 6 and col >= 1 and board[r+1][c-1] != " " and board[r+1][c-1] in self.white_pieces:
-            self.available[r+1][c-1] = 1
+            available[r+1][c-1] = 1
         
         
         # for rooks and queens (mark straight)
@@ -110,45 +115,45 @@ class Board:
             rc = c
             while ra <= 7 and ra >= 0:
                 if board[ra][rc] == " ":
-                    self.available[ra][rc] = 1
+                    available[ra][rc] = 1
                     ra += 1
-                elif (board[ra][rc] in self.white_pieces and self.selected[2] == "white") or (board[ra][rc] in self.black_pieces and self.selected[2] == "black"):
+                elif (board[ra][rc] in self.white_pieces and selected == "white") or (board[ra][rc] in self.black_pieces and selected == "black"):
                     break
                 else:
-                    self.available[ra][rc] = 1
+                    available[ra][rc] = 1
                     break
             ra = r-1
             rc = c
             while ra <= 7 and ra >= 0:
                 if board[ra][rc] == " ":
-                    self.available[ra][rc] = 1
+                    available[ra][rc] = 1
                     ra -= 1
-                elif (board[ra][rc] in self.white_pieces and self.selected[2] == "white") or (board[ra][rc] in self.black_pieces and self.selected[2] == "black"):
+                elif (board[ra][rc] in self.white_pieces and selected == "white") or (board[ra][rc] in self.black_pieces and selected == "black"):
                     break
                 else:
-                    self.available[ra][rc] = 1
+                    available[ra][rc] = 1
                     break
             ra = r
             rc = c+1
             while rc <= 7 and rc >= 0:
                 if board[ra][rc] == " ":
-                    self.available[ra][rc] = 1
+                    available[ra][rc] = 1
                     rc += 1
-                elif (board[ra][rc] in self.white_pieces and self.selected[2] == "white") or (board[ra][rc] in self.black_pieces and self.selected[2] == "black"):
+                elif (board[ra][rc] in self.white_pieces and selected == "white") or (board[ra][rc] in self.black_pieces and selected == "black"):
                     break
                 else:
-                    self.available[ra][rc] = 1
+                    available[ra][rc] = 1
                     break
             ra = r
             rc = c-1
             while rc <= 7 and rc >= 0:
                 if board[ra][rc] == " ":
-                    self.available[ra][rc] = 1
+                    available[ra][rc] = 1
                     rc -= 1
-                elif (board[ra][rc] in self.white_pieces and self.selected[2] == "white") or (board[ra][rc] in self.black_pieces and self.selected[2] == "black"):
+                elif (board[ra][rc] in self.white_pieces and selected == "white") or (board[ra][rc] in self.black_pieces and selected == "black"):
                     break
                 else:
-                    self.available[ra][rc] = 1
+                    available[ra][rc] = 1
                     break
 
 
@@ -158,49 +163,49 @@ class Board:
             rc = c + 1
             while ra <= 7 and ra >= 0 and rc <= 7 and rc >= 0:
                 if board[ra][rc] == " ":
-                    self.available[ra][rc] = 1
+                    available[ra][rc] = 1
                     ra += 1
                     rc += 1
-                elif (board[ra][rc] in self.white_pieces and self.selected[2] == "white") or (board[ra][rc] in self.black_pieces and self.selected[2] == "black"):
+                elif (board[ra][rc] in self.white_pieces and selected == "white") or (board[ra][rc] in self.black_pieces and selected == "black"):
                     break
                 else:
-                    self.available[ra][rc] = 1
+                    available[ra][rc] = 1
                     break
             ra = r - 1
             rc = c + 1
             while ra <= 7 and ra >= 0 and rc <= 7 and rc >= 0:
                 if board[ra][rc] == " ":
-                    self.available[ra][rc] = 1
+                    available[ra][rc] = 1
                     ra -= 1
                     rc += 1
-                elif (board[ra][rc] in self.white_pieces and self.selected[2] == "white") or (board[ra][rc] in self.black_pieces and self.selected[2] == "black"):
+                elif (board[ra][rc] in self.white_pieces and selected == "white") or (board[ra][rc] in self.black_pieces and selected == "black"):
                     break
                 else:
-                    self.available[ra][rc] = 1
+                    available[ra][rc] = 1
                     break
             ra = r + 1
             rc = c - 1
             while ra <= 7 and ra >= 0 and rc <= 7 and rc >= 0:
                 if board[ra][rc] == " ":
-                    self.available[ra][rc] = 1
+                    available[ra][rc] = 1
                     ra += 1
                     rc -= 1
-                elif (board[ra][rc] in self.white_pieces and self.selected[2] == "white") or (board[ra][rc] in self.black_pieces and self.selected[2] == "black"):
+                elif (board[ra][rc] in self.white_pieces and selected == "white") or (board[ra][rc] in self.black_pieces and selected == "black"):
                     break
                 else:
-                    self.available[ra][rc] = 1
+                    available[ra][rc] = 1
                     break
             ra = r - 1
             rc = c - 1
             while ra <= 7 and ra >= 0 and rc <= 7 and rc >= 0:
                 if board[ra][rc] == " ":
-                    self.available[ra][rc] = 1
+                    available[ra][rc] = 1
                     ra -= 1
                     rc -= 1
-                elif (board[ra][rc] in self.white_pieces and self.selected[2] == "white") or (board[ra][rc] in self.black_pieces and self.selected[2] == "black"):
+                elif (board[ra][rc] in self.white_pieces and selected == "white") or (board[ra][rc] in self.black_pieces and selected == "black"):
                     break
                 else:
-                    self.available[ra][rc] = 1
+                    available[ra][rc] = 1
                     break
 
 
@@ -210,9 +215,9 @@ class Board:
             for tup in mark_moves:
                 if tup[0] >= 0 and tup[0] <= 7 and tup[1] >= 0 and tup[1] <= 7:
                     if board[tup[0]][tup[1]] == " ":
-                        self.available[tup[0]][tup[1]] = 1
-                    elif (board[tup[0]][tup[1]] in self.black_pieces and self.selected[2] == "white") or (board[tup[0]][tup[1]] in self.white_pieces and self.selected[2] == "black"):
-                        self.available[tup[0]][tup[1]] = 1
+                        available[tup[0]][tup[1]] = 1
+                    elif (board[tup[0]][tup[1]] in self.black_pieces and selected == "white") or (board[tup[0]][tup[1]] in self.white_pieces and selected == "black"):
+                        available[tup[0]][tup[1]] = 1
 
         # for knights
         if board[r][c] in [self.black_pieces[4], self.white_pieces[4]]:
@@ -220,35 +225,39 @@ class Board:
             for tup in mark_moves:
                 if tup[0] >= 0 and tup[0] <= 7 and tup[1] >= 0 and tup[1] <= 7:
                     if board[tup[0]][tup[1]] == " ":
-                        self.available[tup[0]][tup[1]] = 1
-                    elif (board[tup[0]][tup[1]] in self.black_pieces and self.selected[2] == "white") or (board[tup[0]][tup[1]] in self.white_pieces and self.selected[2] == "black"):
-                        self.available[tup[0]][tup[1]] = 1
+                        available[tup[0]][tup[1]] = 1
+                    elif (board[tup[0]][tup[1]] in self.black_pieces and selected == "white") or (board[tup[0]][tup[1]] in self.white_pieces and selected == "black"):
+                        available[tup[0]][tup[1]] = 1
         
-        return self.available
+        return available
         
     def mark_available_moves(self, row, col):
-        new_available = copy.deepcopy(self.check_available_moves(self.board, row, col))
+        if self.selected[2] == "black":
+            new_available = copy.deepcopy(self.check_available_moves(self.board, row, col, "black"))
+        else:
+            new_available = copy.deepcopy(self.check_available_moves(self.board, row, col, "white"))
+            
 
         # hide all moves that results in self-check
-        # if self.selected[2] == "black":
-        #     for x in range(8):
-        #         for y in range(8):
-        #             if new_available[x][y]:
-        #                 new_board = copy.deepcopy(self.board)
-        #                 new_board[x][y] = self.board[self.selected[0]][self.selected[1]]
-        #                 new_board[self.selected[0]][self.selected[1]] = " "
-        #                 if self.check_for_check(new_board, "black"):
-        #                     new_available[x][y] = 0
+        if self.selected[2] == "black":
+            for x in range(8):
+                for y in range(8):
+                    if new_available[x][y]:
+                        new_board = copy.deepcopy(self.board)
+                        new_board[x][y] = self.board[self.selected[0]][self.selected[1]]
+                        new_board[self.selected[0]][self.selected[1]] = " "
+                        if self.check_for_check(new_board, "black"):
+                            new_available[x][y] = 0
                             
-        # else:
-        #     for x in range(8):
-        #         for y in range(8):
-        #             if new_available[x][y]:
-        #                 new_board = copy.deepcopy(self.board)
-        #                 new_board[x][y] = self.board[self.selected[0]][self.selected[1]]
-        #                 new_board[self.selected[0]][self.selected[1]] = " "
-        #                 if self.check_for_check(new_board, "white"):
-        #                     new_available[x][y] = 0
+        else:
+            for x in range(8):
+                for y in range(8):
+                    if new_available[x][y]:
+                        new_board = copy.deepcopy(self.board)
+                        new_board[x][y] = self.board[self.selected[0]][self.selected[1]]
+                        new_board[self.selected[0]][self.selected[1]] = " "
+                        if self.check_for_check(new_board, "white"):
+                            new_available[x][y] = 0
             
         
         # mark all available
@@ -260,9 +269,7 @@ class Board:
     def hide_available_moves(self):
         for x in range(8):
             for y in range(8):
-                if self.available[x][y]:
-                    self.restore_square_color(x,y)
-                    self.available[x][y] = 0
+                self.restore_square_color(x,y)
     
     def restore_square_color(self, r, c):
         if (r + c) % 2 == 0:
@@ -297,23 +304,23 @@ class Board:
             for x in range(8):
                 for y in range(8):
                     if new_board[x][y] in self.white_pieces:
-                        available_moves = self.check_available_moves(new_board, x, y)
+                        available_moves = self.check_available_moves(new_board, x, y, "white")
                         # print(f"current_square = {x}{y} and available_matrix = {available_moves}")
                         for x1 in range(8):
                             for y1 in range(8):
                                 if available_moves[x1][y1] and new_board[x1][y1] == self.black_pieces[0]:
-                                    print("currently in check")
+                                    print("black is currently in check")
                                     return True
         else:
             for x in range(8):
                 for y in range(8):
                     if new_board[x][y] in self.black_pieces:
-                        available_moves = self.check_available_moves(new_board, x, y)
+                        available_moves = self.check_available_moves(new_board, x, y, "black")
                         # print(f"current_square = {x}{y} and available_matrix = {available_moves}")
                         for x1 in range(8):
                             for y1 in range(8):
                                 if available_moves[x1][y1] and new_board[x1][y1] == self.white_pieces[0]:
-                                    print("currently in check")
+                                    print("white is currently in check")
                                     return True
 
                         
