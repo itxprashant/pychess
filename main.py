@@ -250,32 +250,17 @@ class Board:
         return available
         
     def filter_available_moves(self, board, row, col, color):
-        if color == "black":
-            new_available = copy.deepcopy(self.check_available_moves(board, row, col, "black"))
-        else:
-            new_available = copy.deepcopy(self.check_available_moves(board, row, col, "white"))
-            
+        new_available = copy.deepcopy(self.check_available_moves(board, row, col, color))
 
         # hide all moves that results in self-check
-        if color == "black":
-            for x in range(8):
-                for y in range(8):
-                    if new_available[x][y]:
-                        new_board = copy.deepcopy(board)
-                        new_board[x][y] = self.board[row][col]
-                        new_board[row][col] = " "
-                        if self.check_for_check(new_board, "black"):
-                            new_available[x][y] = 0
-                            
-        else:
-            for x in range(8):
-                for y in range(8):
-                    if new_available[x][y]:
-                        new_board = copy.deepcopy(board)
-                        new_board[x][y] = self.board[row][col]
-                        new_board[row][col] = " "
-                        if self.check_for_check(new_board, "white"):
-                            new_available[x][y] = 0
+        for x in range(8):
+            for y in range(8):
+                if new_available[x][y]:
+                    new_board = copy.deepcopy(board)
+                    new_board[x][y] = self.board[row][col]
+                    new_board[row][col] = " "
+                    if self.check_for_check(new_board, color):
+                        new_available[x][y] = 0
         
         return new_available
             
@@ -321,46 +306,26 @@ class Board:
             self.button1[i].grid(row = 0, column = i)
     
     def check_for_check(self, new_board, to_color):
-        if to_color == "black":
-            for x in range(8):
-                for y in range(8):
-                    if new_board[x][y] in self.white_pieces:
-                        available_moves = self.check_available_moves(new_board, x, y, "white")
-                        # print(f"current_square = {x}{y} and available_matrix = {available_moves}")
-                        for x1 in range(8):
-                            for y1 in range(8):
-                                if available_moves[x1][y1] and new_board[x1][y1] == self.black_pieces[0]:
-                                    # print("black is currently in check")
-                                    return True
-        else:
-            for x in range(8):
-                for y in range(8):
-                    if new_board[x][y] in self.black_pieces:
-                        available_moves = self.check_available_moves(new_board, x, y, "black")
-                        # print(f"current_square = {x}{y} and available_matrix = {available_moves}")
-                        for x1 in range(8):
-                            for y1 in range(8):
-                                if available_moves[x1][y1] and new_board[x1][y1] == self.white_pieces[0]:
-                                    # print("white is currently in check")
-                                    return True
+        for x in range(8):
+            for y in range(8):
+                if new_board[x][y] in self.pieces_of_color(self.conjugate_color(to_color)):
+                    available_moves = self.check_available_moves(new_board, x, y, self.conjugate_color(to_color))
+                    # print(f"current_square = {x}{y} and available_matrix = {available_moves}")
+                    for x1 in range(8):
+                        for y1 in range(8):
+                            if available_moves[x1][y1] and new_board[x1][y1] == self.pieces_of_color(to_color)[0]:
+                                # print("black is currently in check")
+                                return True
     
     def check_for_checkmate_or_draw(self, board, color, row, col):
         available_count = 0
-        if color == "black":
-            for x in range(8):
-                for y in range(8):
-                    if board[x][y] in self.black_pieces:
-                        available = self.filter_available_moves(copy.deepcopy(board), x, y, "black")
-                        for i in available:
-                            available_count += sum(i)
+        for x in range(8):
+            for y in range(8):
+                if board[x][y] in self.pieces_of_color(color):
+                    available = self.filter_available_moves(copy.deepcopy(board), x, y, color)
+                    for i in available:
+                        available_count += sum(i)
         
-        else:
-            for x in range(8):
-                for y in range(8):
-                    if board[x][y] in self.white_pieces:
-                        available = self.filter_available_moves(copy.deepcopy(board), x, y, "white")
-                        for i in available:
-                            available_count += sum(i)
         # print(f"available count is {available_count}") 
         if available_count:
             return 0
@@ -369,8 +334,17 @@ class Board:
             return 1 # mate
         print("drawn")
         return 2 # draw
-            
-        
+
+    def pieces_of_color(self, color):
+        if color == "black":
+            return self.black_pieces
+        return self.white_pieces
+    
+    def conjugate_color(self, color):
+        if color == "black":
+            return "white"
+        return "black"
+
     def __init__(self):
         self.root = tk.Tk()
         rows = 8
@@ -408,10 +382,6 @@ class Board:
         # self.board[0][1] = self.white_pieces[1]
         # self.board[0][2] = self.white_pieces[1]
         
-
-
-
-
         self.board_buttons = [[None for _ in range(cols)] for _ in range(rows)]
         self.available = [[0 for _ in range(cols)] for _ in range(rows)]
         for row in range(rows):
