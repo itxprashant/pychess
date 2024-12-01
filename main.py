@@ -60,7 +60,7 @@ class Board:
         
 
             # for castling
-            elif self.board[self.selected[0]][self.selected[1]] == white_pieces[0] and (row, col) == (7, 6):
+            elif (self.selected[0], self.selected[1]) == (7, 4) and self.board[self.selected[0]][self.selected[1]] == white_pieces[0] and (row, col) == (7, 6):
                 self.board[7][6] = white_pieces[0]
                 self.board[7][5] = white_pieces[2]
                 self.board_buttons[7][6].config(text = white_pieces[0])
@@ -74,7 +74,7 @@ class Board:
                 self.white_king_moved = True
                 self.a8_rook_moved = True
 
-            elif self.board[self.selected[0]][self.selected[1]] == white_pieces[0] and (row, col) == (7, 2):
+            elif (self.selected[0], self.selected[1]) == (7, 4) and self.board[self.selected[0]][self.selected[1]] == white_pieces[0] and (row, col) == (7, 2):
                 self.board[7][2] = white_pieces[0]
                 self.board[7][3] = white_pieces[2]
                 self.board_buttons[7][2].config(text = white_pieces[0])
@@ -88,9 +88,9 @@ class Board:
                 self.white_king_moved = True
                 self.a1_rook_moved = True
             
-            elif self.board[self.selected[0]][self.selected[1]] == black_pieces[0] and (row, col) == (0, 6):
-                self.board[0][6] = white_pieces[0]
-                self.board[0][5] = white_pieces[2]
+            elif (self.selected[0], self.selected[1]) == (0, 4) and self.board[self.selected[0]][self.selected[1]] == black_pieces[0] and (row, col) == (0, 6):
+                self.board[0][6] = black_pieces[0]
+                self.board[0][5] = black_pieces[2]
                 self.board_buttons[0][6].config(text = black_pieces[0])
                 self.board_buttons[0][5].config(text = black_pieces[2])
 
@@ -102,9 +102,9 @@ class Board:
                 self.black_king_moved = True
                 self.h8_rook_moved = True
             
-            elif self.board[self.selected[0]][self.selected[1]] == white_pieces[0] and (row, col) == (0, 2):
-                self.board[0][2] = white_pieces[0]
-                self.board[0][3] = white_pieces[2]
+            elif (self.selected[0], self.selected[1]) == (0, 4) and self.board[self.selected[0]][self.selected[1]] == black_pieces[0] and (row, col) == (0, 2):
+                self.board[0][2] = black_pieces[0]
+                self.board[0][3] = black_pieces[2]
                 self.board_buttons[0][2].config(text = black_pieces[0])
                 self.board_buttons[0][3].config(text = black_pieces[2])
 
@@ -128,7 +128,7 @@ class Board:
 
             self.restore_square_color(self.selected[0], self.selected[1])
 
-            if self.selected[2] == "white":
+            if self.current_turn == "white":
                 self.label1.config(text = "Black's \n turn")
                 self.current_turn = "black"
                 # self.check_for_check(self.board, "black")
@@ -148,13 +148,9 @@ class Board:
             if match_status == 2:
                 messagebox.showinfo("Game Ended", "Drawn")
                 
-            self.check_for_check(self.board, "white")
-            self.check_for_check(self.board, "black")
-
             self.selected = None
             self.hide_available_moves()
 
-            print(self.board)
 
         # deselect if selected
         elif self.selected and (row, col) == (self.selected[0], self.selected[1]):
@@ -165,15 +161,11 @@ class Board:
 
         # select piece/square
         elif self.board[row][col] != " " and ((self.current_turn == "black" and self.board[row][col] in black_pieces) or (self.current_turn == "white" and self.board[row][col] in white_pieces)):
-            if self.board[row][col] in white_pieces:
-                self.selected_color = "white"
-            else:
-                self.selected_color = "black"
             # (row, column, color, piece)
             self.hide_available_moves()
-            self.selected = (row, col, self.selected_color, self.board[row][col])
-            self.available = self.filter_available_moves_with_castling(self.board, row, col, self.selected[2])
-            self.mark_available_moves(row, col, self.selected[2])
+            self.selected = (row, col, self.current_turn, self.board[row][col])
+            self.available = self.filter_available_moves_with_castling(self.board, row, col, self.current_turn)
+            self.mark_available_moves(row, col, self.current_turn)
             self.board_buttons[self.selected[0]][self.selected[1]].config(bg = 'yellow')
 
     def check_available_moves(self, board, row, col, selected_color):
@@ -353,16 +345,16 @@ class Board:
         return new_available
     
     def filter_available_moves_with_castling(self, board, row, col, color):
-        new_available = self.filter_available_moves(self.board, row, col, color)
+        new_available = copy.deepcopy(self.filter_available_moves(board, row, col, color))
 
         # mark for castling (click handled in if, only marked, not updated in self.available)
-        if self.selected[3] == white_pieces[0] and self.is_castling_available(self.board, "white", "short"):
+        if board[self.selected[0]][self.selected[1]] == white_pieces[0] and self.is_castling_available(self.board, "white", "short"):
             new_available[7][6] = 1
-        if self.selected[3] == white_pieces[0] and self.is_castling_available(self.board, "white", "long"):
+        if board[self.selected[0]][self.selected[1]] == white_pieces[0] and self.is_castling_available(self.board, "white", "long"):
             new_available[7][2] = 1
-        if self.selected[3] == black_pieces[0] and self.is_castling_available(self.board, "black", "short"):
+        if board[self.selected[0]][self.selected[1]] == black_pieces[0] and self.is_castling_available(self.board, "black", "short"):
             new_available[0][6] = 1
-        if self.selected[3] == black_pieces[0] and self.is_castling_available(self.board, "black", "long"):
+        if board[self.selected[0]][self.selected[1]] == black_pieces[0] and self.is_castling_available(self.board, "black", "long"):
             new_available[0][2] = 1
         
         return new_available
