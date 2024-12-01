@@ -11,4 +11,4 @@ This is a Python Chess clone made by me.
 - [x] Remove moves which result in check
 - [x] Game Over Status
 - [ ] En Passant
-- [ ] Castling
+- [x] Castling
