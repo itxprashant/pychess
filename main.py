@@ -436,7 +436,7 @@ class Board:
                 for y in range(8):
                     if board[x][y] in black_pieces:
                         available = self.filter_available_moves(board, x, y, "black")
-                        if available[7][4] or available[7][5] or available[7][6] or self.a8_rook_moved or self.white_king_moved or (board[7][5] != " ") or (board[7][6] != " "):
+                        if available[7][4] or available[7][5] or available[7][6] or self.a8_rook_moved or self.white_king_moved or (board[7][5] != " ") or (board[7][6] != " ") or (board[7][7] != white_pieces[2]):
                             return False
             return True
 
@@ -445,7 +445,7 @@ class Board:
                 for y in range(8):
                     if board[x][y] in black_pieces:
                         available = self.filter_available_moves(board, x, y, "black")
-                        if available[7][2] or available[7][3] or available[7][4] or self.a1_rook_moved or self.white_king_moved or (board[7][1] != " ") or (board[7][2] != " ") or (board[7][3] != " "):
+                        if available[7][2] or available[7][3] or available[7][4] or self.a1_rook_moved or self.white_king_moved or (board[7][1] != " ") or (board[7][2] != " ") or (board[7][3] != " ") or (board[7][0] != white_pieces[2]):
                             return False
             return True
 
@@ -454,7 +454,7 @@ class Board:
                 for y in range(8):
                     if board[x][y] in white_pieces:
                         available = self.filter_available_moves(board, x, y, "white")
-                        if available[0][2] or available[0][3] or available[0][4] or self.h1_rook_moved or self.black_king_moved or (board[0][1] != " ") or (board[0][2] != " ") or (board[0][3] != " "):
+                        if available[0][2] or available[0][3] or available[0][4] or self.h1_rook_moved or self.black_king_moved or (board[0][1] != " ") or (board[0][2] != " ") or (board[0][3] != " ") or (board[0][0] != black_pieces[2]):
                             return False
             return True
 
@@ -463,7 +463,7 @@ class Board:
                 for y in range(8):
                     if board[x][y] in white_pieces:
                         available = self.filter_available_moves(board, x, y, "white")
-                        if available[0][4] or available[0][5] or available[0][6] or self.h8_rook_moved or self.black_king_moved or (board[0][5] != " ") or (board[0][6] != " "):
+                        if available[0][4] or available[0][5] or available[0][6] or self.h8_rook_moved or self.black_king_moved or (board[0][5] != " ") or (board[0][6] != " ") or (board[0][7] != black_pieces[2]):
                             return False
             return True
 
