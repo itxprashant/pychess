@@ -27,6 +27,8 @@ class Board:
     
     selected = None
     current_turn = "white"
+    # last_move => [from, to, piece, color]
+    last_move = []
     def on_click(self, row, col):
 
         # place if selected
@@ -116,6 +118,30 @@ class Board:
                 self.white_king_moved = True
                 self.h1_rook_moved = True
 
+            # en-passant
+            elif (self.selected[1] < 7) and (self.board[self.selected[0]][self.selected[1]] == white_pieces[5]) and (self.is_enpassant_available(self.board, "white", (self.selected[0], self.selected[1]), "right")):
+                self.board[row][col] = self.board[self.selected[0]][self.selected[1]]
+                self.board_buttons[row][col].config(text = self.board[self.selected[0]][self.selected[1]])
+                self.board[self.selected[0]][self.selected[1] + 1] = " "
+                self.board_buttons[self.selected[0]][self.selected[1] + 1].config(text = " ")
+
+            elif (self.selected[1] > 0) and (self.board[self.selected[0]][self.selected[1]] == white_pieces[5]) and (self.is_enpassant_available(self.board, "white", (self.selected[0], self.selected[1]), "left")):
+                self.board[row][col] = self.board[self.selected[0]][self.selected[1]]
+                self.board_buttons[row][col].config(text = self.board[self.selected[0]][self.selected[1]])
+                self.board[self.selected[0]][self.selected[1] - 1] = " "
+                self.board_buttons[self.selected[0]][self.selected[1] - 1].config(text = " ")
+
+            elif (self.selected[1] < 7) and (self.board[self.selected[0]][self.selected[1]] == black_pieces[5]) and (self.is_enpassant_available(self.board, "black", (self.selected[0], self.selected[1]), "right")):
+                self.board[row][col] = self.board[self.selected[0]][self.selected[1]]
+                self.board_buttons[row][col].config(text = self.board[self.selected[0]][self.selected[1]])
+                self.board[self.selected[0]][self.selected[1] + 1] = " "
+                self.board_buttons[self.selected[0]][self.selected[1] + 1].config(text = " ")
+
+            elif (self.selected[1] > 0) and (self.board[self.selected[0]][self.selected[1]] == black_pieces[5]) and (self.is_enpassant_available(self.board, "black", (self.selected[0], self.selected[1]), "left")):
+                self.board[row][col] = self.board[self.selected[0]][self.selected[1]]
+                self.board_buttons[row][col].config(text = self.board[self.selected[0]][self.selected[1]])
+                self.board[self.selected[0]][self.selected[1] - 1] = " "
+                self.board_buttons[self.selected[0]][self.selected[1] - 1].config(text = " ")
 
             # for piece placement    
             else:
@@ -147,6 +173,9 @@ class Board:
 
             if match_status == 2:
                 messagebox.showinfo("Game Ended", "Drawn")
+
+            self.last_move = [(self.selected[0], self.selected[1]), (row, col), self.selected[3], self.selected[2]]
+            # print(self.last_move)
                 
             self.selected = None
             self.hide_available_moves()
@@ -167,6 +196,7 @@ class Board:
             self.available = self.filter_available_moves_with_castling(self.board, row, col, self.current_turn)
             self.mark_available_moves(row, col, self.current_turn)
             self.board_buttons[self.selected[0]][self.selected[1]].config(bg = 'yellow')
+            # print(self.is_enpassant_available(self.board, "white", (self.selected[0], self.selected[1]), "right"))
 
     def check_available_moves(self, board, row, col, selected_color):
         r = row
@@ -188,7 +218,16 @@ class Board:
 
         if board[r][c] == white_pieces[5] and r >= 1 and col >= 1 and board[r-1][c-1] != " " and board[r-1][c-1] in black_pieces:
             available[r-1][c-1] = 1
-        
+
+        # en-passant
+        if (board[r][c] == white_pieces[5]) and (self.last_move) and (c < 7) and (self.last_move[2] == black_pieces[5]) and (self.last_move[0][0] == 1) and (self.last_move[1][0] == 3) and (self.is_enpassant_available(board, "white", (r,c), "right")):
+            available[r-1][c+1] = 1
+        if (board[r][c] == white_pieces[5]) and (self.last_move) and (c > 0) and (self.last_move[2] == black_pieces[5]) and (self.last_move[0][0] == 1) and (self.last_move[1][0] == 3) and (self.is_enpassant_available(board, "white", (r,c), "left")):
+            available[r-1][c-1] = 1
+        if (board[r][c] == black_pieces[5]) and (self.last_move) and (c < 7) and (self.last_move[2] == white_pieces[5]) and (self.last_move[0][0] == 6) and (self.last_move[1][0] == 4) and (self.is_enpassant_available(board, "black", (r,c), "right")):
+            available[r+1][c+1] = 1
+        if (board[r][c] == black_pieces[5]) and (self.last_move) and (c > 0) and (self.last_move[2] == white_pieces[5]) and (self.last_move[0][0] == 6) and (self.last_move[1][0] == 4) and (self.is_enpassant_available(board, "black", (r,c), "left")):
+            available[r+1][c-1] = 1
         
         # for black pawn
         if board[r][c] == black_pieces[5]  and r == 1 and board[r+1][c] == " " and board[r+2][c] == " ":
@@ -341,6 +380,8 @@ class Board:
                     new_board[row][col] = " "
                     if self.check_for_check(new_board, color):
                         new_available[x][y] = 0
+        
+        # add filter for en-passant
 
         return new_available
     
@@ -467,6 +508,46 @@ class Board:
                             return False
             return True
 
+    def is_enpassant_available(self, board, color, from_square, side):
+        #left-right is relative to white
+
+        if color == "white":
+            if side == "right":
+                if board[from_square[0]][from_square[1] + 1] == black_pieces[5] and self.last_move[1] == (from_square[0], from_square[1] + 1):
+                    new_board = copy.deepcopy(board)
+                    new_board[from_square[0]][from_square[1]] = " "
+                    new_board[from_square[0]][from_square[1] + 1] = " "
+                    new_board[from_square[0] - 1][from_square[1] + 1] = white_pieces[5]
+                    if not self.check_for_check(new_board, "white"):
+                        return True
+            if side == "left":
+                if board[from_square[0]][from_square[1] - 1] == black_pieces[5] and self.last_move[1] == (from_square[0], from_square[1] - 1):
+                    new_board = copy.deepcopy(board)
+                    new_board[from_square[0]][from_square[1]] = " "
+                    new_board[from_square[0]][from_square[1] - 1] = " "
+                    new_board[from_square[0] - 1][from_square[1] - 1] = white_pieces[5]
+                    if not self.check_for_check(new_board, "white"):
+                        return True
+        else:
+            if side == "right":
+                if board[from_square[0]][from_square[1] + 1] == white_pieces[5] and self.last_move[1] == (from_square[0], from_square[1] + 1):
+                    new_board = copy.deepcopy(board)
+                    new_board[from_square[0]][from_square[1]] = " "
+                    new_board[from_square[0]][from_square[1] + 1] = " "
+                    new_board[from_square[0] + 1][from_square[1] + 1] = black_pieces[5]
+                    if not self.check_for_check(new_board, "black"):
+                        return True
+            if side == "left":
+                if board[from_square[0]][from_square[1] - 1] == white_pieces[5] and self.last_move[1] == (from_square[0], from_square[1] - 1):
+                    new_board = copy.deepcopy(board)
+                    new_board[from_square[0]][from_square[1]] = " "
+                    new_board[from_square[0]][from_square[1] - 1] = " "
+                    new_board[from_square[0] + 1][from_square[1] - 1] = black_pieces[5]
+                    if not self.check_for_check(new_board, "black"):
+                        return True
+            
+        return False
+
 
     def pieces_of_color(self, color):
         if color == "black":
@@ -538,5 +619,3 @@ class Board:
 if __name__ == "__main__":
     Board()
     # MainUI()
-        
-    
